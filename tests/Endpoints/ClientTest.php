@@ -24,10 +24,10 @@ class ClientTest extends TestCase
 
     public function testCreateIndexWithOnlyUid()
     {
-        $index = $this->client->createIndex('index');
+        $index = $this->client->createIndex('indexn');
 
         $this->assertInstanceOf(Index::class, $index);
-        $this->assertSame('index', $index->getUid());
+        $this->assertSame('indexn', $index->getUid());
         $this->assertNull($index->getPrimaryKey());
     }
 

@@ -2,18 +2,31 @@
 
 namespace MeiliSearch;
 
-class Client extends HTTPRequest
+use MeiliSearch\Contracts\Endpoint;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+
+class Client
 {
-    // Indexes
+    /**
+     * @var Http\Client
+     */
+    private $http;
+
+    public function __construct($url, $apiKey = null, ClientInterface $httpClient = null, RequestFactoryInterface $requestFactory = null, StreamFactoryInterface $streamFactory = null)
+    {
+        $this->http = new Http\Client($url, $apiKey, $httpClient, $requestFactory, $streamFactory);
+    }
 
     public function getAllIndexes()
     {
-        return $this->httpGet('/indexes');
+        return $this->http->get('/indexes');
     }
 
     public function showIndex($uid)
     {
-        return $this->indexInstance($uid)->show();
+        return (new Index($uid, $this->http))->show();
     }
 
     public function deleteIndex($uid)
@@ -33,17 +46,10 @@ class Client extends HTTPRequest
         return $this->indexInstance($uid);
     }
 
-    public function createIndex($attributes)
+    public function createIndex($attributes): Index
     {
-        if (is_array($attributes)) {
-            $body = $attributes;
-        } else {
-            $body = ['uid' => $attributes];
-        }
-        $response = $this->httpPost('/indexes', $body);
-        $uid = $response['uid'];
-
-        return $this->indexInstance($uid);
+        return (new Index($this->http))
+        ->create($attributes);
     }
 
     // Health
